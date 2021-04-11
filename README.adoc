@@ -1,0 +1,85 @@
+ESP-IDF for Nix, from source
+============================
+
+Use esp-idf in nix, without using pre-compiled packages from espressif.
+
+Advantages:
+
+- no binary patching required to make the toolchain run on nixos
+- no shady downloads
+- it's currently up to date
+
+Disadvantages:
+
+- takes a while to compile the toolchain
+- interesting hacks are required to make crosstool-ng work with pre-downloaded sources
+
+Usage
+-----
+
+The simplest option is to use nix-shell from this repository:
+
+[source,shell]
+nix-shell path/to/shell.nix
+
+Then use +idf.py build+ etc. as normal.
+
+For reproducibility it's probably a good idea to pin nixpkgs and this
+repository; create a +shell.nix+ in your project repository with something like
+this (with updated commit IDs and hashes):
+
+[source,nix]
+----
+let
+  pkgs_ovl = pkgs.extend (import ./overlay.nix);
+  pkgs_src = fetchTarball {
+    url = "https://github.com/NixOS/nixpkgs/archive/da7f4c4842520167f65c20ad75ecdbd14e27ae91.tar.gz";
+    sha256 = "0vdq6lkc1sqj85x8r8idpck3igjns8ix57fqf1r5pm4k0qhy7p2m";
+  };
+
+  pkgs = import pkgs_src {
+    overlays = [(import ./overlay.nix)];
+  };
+in pkgs.mkShell {
+  buildInputs = [
+    pkgs.esp-idf
+  ];
+  shellHook = pkgs.esp-idf.shellHook;
+}
+----
+
+Then you can just run +nix-shell+ to get the same version each time.
+
+TODO: pin this repository in the above example
+
+Other Projects
+--------------
+
+There are lots of similar projects out there, which may be more useful to you
+depending on what you want:
+
+https://git.c3pb.de/snowball/esp-idf-nix/ seems to be half way through a
+refactor, but looks potentially more advanced, supporting cross-compilation of
+the toolchain, Canadian-style.
+
+https://github.com/mirrexagon/nixpkgs-esp-dev doesn't include esp-idf, and lets
+crosstool-ng perform the downloads itself, which is less reproducible.
+
+https://gist.github.com/wirew0rm/4881987e7549b390c3acd5767f3b8d6a shows how to
+pre-download sources for crosstool-NG, but builds an older version which
+doesn't use sources from git, which needs more tweaking.
+
+https://nixos.wiki/wiki/ESP-IDF shows how to patch the pre-built toolchain to
+work on nixos, and provides an environment with the dependencies required for
+esp-idf, but doesn't manage esp-idf with nix for some reason. This probably
+will not work with the latest esp-idf, which likes to check for exact versions
+of dependencies. Perhaps it would be easier to patch this out.
+
+https://github.com/notpeelz/nix-esp-idf mostly bundles together the recipes
+from the wiki.
+
+https://github.com/sdobz/rust-esp-nix also has tools for downloading and
+patching pre-built toolchains.
+
+https://github.com/yrashk/esp-idf-nix is pretty similar to this, though it's
+for an older esp-idf.
