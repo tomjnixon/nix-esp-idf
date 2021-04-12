@@ -37,8 +37,13 @@ let
     sha256 = "0vdq6lkc1sqj85x8r8idpck3igjns8ix57fqf1r5pm4k0qhy7p2m";
   };
 
+  overlay_src = fetchTarball {
+    url = "https://github.com/tomjnixon/nix-esp-idf/archive/604fc5fba02ebff07095c7d29be0f76bfd1b1889.tar.gz";
+    sha256 = "0s3flpirqxxl68m2hc3mxbnwmrl14hww05myh07licxnw9hi9p10";
+  };
+
   pkgs = import pkgs_src {
-    overlays = [(import ./overlay.nix)];
+    overlays = [ (import "${overlay_src}/overlay.nix") ];
   };
 in pkgs.mkShell {
   buildInputs = [
@@ -49,8 +54,6 @@ in pkgs.mkShell {
 ----
 
 Then you can just run +nix-shell+ to get the same version each time.
-
-TODO: pin this repository in the above example
 
 Other Projects
 --------------
