@@ -45,7 +45,8 @@ let
   pkgs = import pkgs_src {
     overlays = [ (import "${overlay_src}/overlay.nix") ];
   };
-in pkgs.mkShell {
+in
+pkgs.mkShell {
   buildInputs = [
     pkgs.esp-idf
   ];

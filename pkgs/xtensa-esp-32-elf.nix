@@ -1,5 +1,5 @@
-{ stdenv, fetchFromGitHub, fetchurl, pkgs }: let
-
+{ stdenv, fetchFromGitHub, fetchurl, pkgs }:
+let
   binutils_src = fetchFromGitHub {
     owner = "espressif";
     repo = "binutils-gdb";
@@ -28,13 +28,14 @@
     sha256 = "1azk8wdx62xpf6jpbxnk21adryyf9airs1xrr0iyhnfm8lhbxir0";
   };
 
-  to_tar = (name: src: 
-    pkgs.runCommand "${name}-git-git.tar.bz2" {} ''
+  to_tar = (name: src:
+    pkgs.runCommand "${name}-git-git.tar.bz2" { } ''
       BZIP2=--fast tar cjf $out --transform 's,^\./,${name}-git-git/,S' --mode=u+w -C ${src} .
     ''
   );
 
-in stdenv.mkDerivation {
+in
+stdenv.mkDerivation {
   name = "xtensa-esp32-elf";
   version = "2020r3";
   src = fetchFromGitHub {
@@ -46,15 +47,33 @@ in stdenv.mkDerivation {
   };
 
   nativeBuildInputs = with pkgs; [
-    autoconf automake aria coreutils curl cvs
-    gcc git python which file wget unzip perl
+    autoconf
+    automake
+    aria
+    coreutils
+    curl
+    cvs
+    gcc
+    git
+    python
+    which
+    file
+    wget
+    unzip
+    perl
   ];
 
   # https://unix.stackexchange.com/questions/356232/disabling-the-security-hardening-options-for-a-nix-shell-environment#367990
   hardeningDisable = [ "format" ];
 
   buildInputs = with pkgs; [
-    bison flex gperf help2man libtool ncurses texinfo
+    bison
+    flex
+    gperf
+    help2man
+    libtool
+    ncurses
+    texinfo
   ];
 
   phases = [ "unpackPhase" "configurePhase" "buildPhase" "installPhase" ];
@@ -87,7 +106,7 @@ in stdenv.mkDerivation {
 
     ./ct-ng xtensa-esp32-elf;
   '' +
-  toString ( map ( p: "ln -s " + fetchurl { inherit (p) url sha256; } + " ./tars/" + p.name + ";\n" ) [
+  toString (map (p: "ln -s " + fetchurl { inherit (p) url sha256; } + " ./tars/" + p.name + ";\n") [
     {
       name = "autoconf-2.69.tar.xz";
       url = "https://ftp.gnu.org/gnu/autoconf/autoconf-2.69.tar.xz";
