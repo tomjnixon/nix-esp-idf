@@ -31,7 +31,6 @@ this (with updated commit IDs and hashes):
 [source,nix]
 ----
 let
-  pkgs_ovl = pkgs.extend (import ./overlay.nix);
   pkgs_src = fetchTarball {
     url = "https://github.com/NixOS/nixpkgs/archive/da7f4c4842520167f65c20ad75ecdbd14e27ae91.tar.gz";
     sha256 = "0vdq6lkc1sqj85x8r8idpck3igjns8ix57fqf1r5pm4k0qhy7p2m";
